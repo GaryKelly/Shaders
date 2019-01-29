@@ -16,7 +16,7 @@
 #pragma comment(lib,"glu32.lib") 
 #include <Game.h>
 #include "SFML/Graphics.hpp" 
-
+#include <fstream>
 static bool flip;
 
 Game::Game() : window(VideoMode(800, 600), "OpenGL Cube Vertex and Fragment Shaders")
@@ -56,9 +56,47 @@ typedef struct
 	float coordinate[3];
 	float color[4];
 } Vertex1;
-
-Vertex1 vertex[6];
-GLubyte triangles[6];
+Vertex1 vertex[36];
+float vertices[]
+{
+	-0.5,-0.5,0.5// TRIANGLE 1
+	- 0.5,-0.5,-0.5,
+	-0.5, 0.5,-0.5, //END T1
+	0.5,0.5,0.5, //TRIANGLE 2
+	-0.5,-0.5,0.5,
+	-0.5,0.5,0.5, //END T2
+	0.5,-0.5,-0.5, //T3
+	-0.5,-0.5,0.5,
+	0.5,-0.5,0.5, //END T3
+	0.5,0.5,0.5, //T4
+	0.5,-0.5,0,5,
+	-0.5,-0.5,0.5, //END T4
+	-0.5,-0.5,0.5, // T5
+	-0.5,0.5,-0.5,
+	-0.5,-0.5,0.5, // END T5
+	0.5,-0.5,-0.5, //T6
+	-0.5,-0.5,-0.5,
+	-0.5, -0.5, 0.5, // END T6
+	-0.5,0.5,-0.5, //T7
+	-0.5,-0.5,-0.5,
+	0.5,-0.5,-0.5, //END T7
+	0.5,0.5,-0.5, //T8
+	0.5,-0.5,0.5,
+	0.5,0.5,0.5, //END T8
+	0.5, -0.5, 0.5, //T9
+	0.5,0.5,-0.5,
+	0.5,-0.5,-0.5, //END T9
+	0.5,0.5,-0.5, //T10
+	0.5,0.5,0.5,
+	-0.5,0.5,0.5, //END T10
+	0.5,0.5,-0.5, //T11
+	-0.5,0.5,0.5,
+	-0.5,0.5,-0.5, //END T11
+	0.5,0.5,-0.5,
+	-0.5,0.5,-0.5,
+	0.5,-0.5,-0.5
+};
+	GLubyte triangles[36];
 
 /* Variable to hold the VBO identifier and shader data */
 GLuint	index, //Index to draw
@@ -80,63 +118,21 @@ void Game::initialize()
 	glewInit();
 
 	/* Vertices counter-clockwise winding */
-	vertex[0].coordinate[0] = -0.5f;
-	vertex[0].coordinate[1] = -0.5f;
-	vertex[0].coordinate[2] = 0.0f;
+	for (int i = 0; i < 36; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			vertex[i].coordinate[j] = vertices[i * 3 + j];
+			vertex[i].color[j] = (((j + 1)*(0.5 + 1)) / 100.0);
+		}
+	}
 
-	vertex[1].coordinate[0] = -0.5f;
-	vertex[1].coordinate[1] = 0.5f;
-	vertex[1].coordinate[2] = 0.0f;
-
-	vertex[2].coordinate[0] = 0.5f;
-	vertex[2].coordinate[1] = 0.5f;
-	vertex[2].coordinate[2] = 0.0f;
-
-	vertex[3].coordinate[0] = 0.5f;
-	vertex[3].coordinate[1] = 0.5f;
-	vertex[3].coordinate[2] = 0.0f;
-
-	vertex[4].coordinate[0] = 0.5f;
-	vertex[4].coordinate[1] = -0.5f;
-	vertex[4].coordinate[2] = 0.0f;
-
-	vertex[5].coordinate[0] = -0.5f;
-	vertex[5].coordinate[1] = 0.5f;
-	vertex[5].coordinate[2] = 0.0f;
-
-	vertex[0].color[0] = 0.0f;
-	vertex[0].color[1] = 0.0f;
-	vertex[0].color[2] = 0.0f;
-	vertex[0].color[3] = 1.0f;
-
-	vertex[1].color[0] = 0.0f;
-	vertex[1].color[1] = 0.0f;
-	vertex[1].color[2] = 0.0f;
-	vertex[1].color[3] = 1.0f;
-
-	vertex[2].color[0] = 0.0f;
-	vertex[2].color[1] = 0.0f;
-	vertex[2].color[2] = 0.0f;
-	vertex[2].color[3] = 1.0f;
-
-	vertex[3].color[0] = 1.0f;
-	vertex[3].color[1] = 0.0f;
-	vertex[3].color[2] = 0.0f;
-	vertex[3].color[3] = 1.0f;
-
-	vertex[4].color[0] = 1.0f;
-	vertex[4].color[1] = 0.0f;
-	vertex[4].color[2] = 0.0f;
-	vertex[4].color[3] = 1.0f;
-
-	vertex[5].color[0] = 1.0f;
-	vertex[5].color[1] = 0.0f;
-	vertex[5].color[2] = 0.0f;
-	vertex[5].color[3] = 1.0f;
 
 	/*Index of Poly / Triangle to Draw */
-	triangles[0] = 0;   triangles[1] = 1;   triangles[2] = 2;
-	triangles[3] = 3;   triangles[4] = 4;   triangles[5] = 5;
+	for (int i = 0; i <36; i++)
+	{
+		triangles[i] = i;
+	}
 
 	/* Create a new VBO using VBO id */
 	glGenBuffers(1, vbo);
@@ -145,23 +141,23 @@ void Game::initialize()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 
 	/* Upload vertex data to GPU */
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex1) * 7, vertex, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex1) * 36, vertex, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glGenBuffers(1, &index);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 3, triangles, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, triangles, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	std::ifstream vertexShaderText( "Shader.txt" );
+	if (!vertexShaderText)
+	{
+		std::cout << "error loading text file" << std::endl;
+	}
+
+	std::string vertexShaderString((std::istreambuf_iterator<char>(vertexShaderText)), std::istreambuf_iterator<char>());
 	/* Vertex Shader which would normally be loaded from an external file */
-	const char* vs_src = "#version 400\n\r"
-		"in vec4 sv_position;"
-		"in vec4 sv_color;"
-		"out vec4 color;"
-		"void main() {"
-		"	color = sv_color;"
-		"	gl_Position = sv_position;"
-		"}"; //Vertex Shader Src
+	const char* vs_src = vertexShaderString.c_str(); //Vertex Shader Src
 
 	DEBUG_MSG("Setting Up Vertex Shader");
 
@@ -182,12 +178,16 @@ void Game::initialize()
 	}
 
 	/* Fragment Shader which would normally be loaded from an external file */
-	const char* fs_src = "#version 400\n\r"
-		"in vec4 color;"
-		"out vec4 fColor;"
-		"void main() {"
-		"	fColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);"
-		"}"; //Fragment Shader Src
+
+	std::ifstream fragShaderText("fragShader.txt");
+	if (!fragShaderText)
+	{
+		std::cout << "error loading txt file" << std::endl;
+	}
+
+	std::string fragShaderString((std::istreambuf_iterator<char>(fragShaderText)), std::istreambuf_iterator<char>());
+
+	const char* fs_src = fragShaderString.c_str(); //Fragment Shader Src
 
 	DEBUG_MSG("Setting Up Fragment Shader");
 
@@ -294,7 +294,7 @@ void Game::render()
 
 	/*	As the data positions will be updated by the this program on the
 		CPU bind the updated data to the GPU for drawing	*/
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex1) * 6, vertex, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex1) * 36, vertex, GL_STATIC_DRAW);
 
 	/*	Draw Triangle from VBO	(set where to start from as VBO can contain
 		model components that 'are' and 'are not' to be drawn )	*/
@@ -308,7 +308,7 @@ void Game::render()
 	glEnableVertexAttribArray(positionID);
 	glEnableVertexAttribArray(colorID);
 
-	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, (char*)NULL + 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (char*)NULL + 0);
 
 	window.display();
 
