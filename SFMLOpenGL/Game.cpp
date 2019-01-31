@@ -260,17 +260,13 @@ void Game::update()
 	}
 
 	//Change vertex data
-	//vertex[0].coordinate[0] += -0.0001f;
-	//vertex[0].coordinate[1] += -0.0001f;
-	//vertex[0].coordinate[2] += -0.0001f;
-
-	//vertex[1].coordinate[0] += -0.0001f;
-	//vertex[1].coordinate[1] += -0.0001f;
-	//vertex[1].coordinate[2] += -0.0001f;
-
-	//vertex[2].coordinate[0] += -0.0001f;
-	//vertex[2].coordinate[1] += -0.0001f;
-	//vertex[2].coordinate[2] += -0.0001f;
+	for (int i = 0; i < 36; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			vertex[i].coordinate[j] += 0.00001;
+		}
+	}
 
 #if (DEBUG >= 2)
 	DEBUG_MSG("Update up...");
